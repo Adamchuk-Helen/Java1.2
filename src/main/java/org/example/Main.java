@@ -14,51 +14,94 @@ import utils.HibernateSessionFactoryUtil;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-//створення і відкриття нової сесії
-        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
-        Query query = session.createQuery("From Role");
-        //виділення пам'яті для створення об'єкту
-        Role role=new Role();
-        //присвоєння значення
-        role.setName("Admin");
-        // збереження значення
-        session.save(role);
-        //вивід даних бази даних
-        System.out.println("Role id: "+ role.getId());
 
-//Створення об'єкту  Query
-        Query query1 = session.createQuery("FROM Role");
-        //вивід даних бази даних
-        List<Role> roles = query.list();
-        for (Role r : roles) {
-            System.out.println(r.getName());
+        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
+        Query query = session.createQuery("From Books");
+        List<Books> books = query.list();
+        System.out.println("All books: Author Id    Author Name    Book Name");
+        for (Books b : books) {
+            System.out.println(b.getAuthor().getId() + " " + b.getAuthor().getFullName() + " " + b.getId() + " " + b.getName());
         }
         session.close();
 
+        System.out.println("Add new book=> press 1 ");
+        System.out.println("Delete book => press 2 ");
+        System.out.println("Edit book => press 3 ");
 
-
-        Session session1 = HibernateSessionFactoryUtil.getSessionFactory().openSession();
-        Query query3 = session1.createQuery("FROM Books");
-        //виділення пам'яті для створення об'єкту
-        Books book=new Books();
-        //присвоєння значення для поля імені
-        book.setName("Бедрик");
-
-        Author a = new Author();
-        //присвоєння значення для поля, що забезпечує зв'язок між таблицями бази даних
-        a.setId(1);
-        book.setAuthor(a);
-        //збереження значень
-        session1.save(book);
-
-        Query query2 = session1.createQuery("FROM Books");
-        List<Books> books = query.list();
-        //вивід значень таблиць з баз даних
-        for (Books b : books) {
-            System.out.println(b.getAuthor().getFullName()+ " " + b.getName());
+        Scanner in = new Scanner(System.in);
+        int num = in.nextInt();
+        switch (num) {
+            case 1:
+                add_book();
+                break;
+            case 2:
+                delete_book();
+                break;
+            case 3:
+                edit_book();
+                break;
+            default:
+                System.out.println("Press correct number");
         }
-        //закриття сесії
-        session1.close();
+
+    }
+
+    public static void add_book() {
+        Session session2 = HibernateSessionFactoryUtil.getSessionFactory().openSession();
+        Books books1 = new Books();
+        System.out.println("Enter book name");
+        Scanner in = new Scanner(System.in);
+        String new_book = in.nextLine();
+        books1.setName(new_book);
+        System.out.println("Enter author id");
+        Scanner in_author_id = new Scanner(System.in);
+        int author_id = in.nextInt();
+        Author a = new Author();
+        a.setId(author_id);
+        books1.setAuthor(a);
+        session2.save(books1);
+        session2.close();
+    }
+
+    public static void delete_book() {
+        Transaction transaction = null;
+        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+
+            System.out.print("Input book id you want to delete ");
+            Scanner in = new Scanner(System.in);
+            int id_book = in.nextInt();
+            Books book = session.get(Books.class, id_book);
+            session.delete(book);
+            session.flush();
+            session.close();
+        }
+    }
+
+    public static void edit_book() {
+        Transaction transaction_edit = null;
+        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
+            transaction_edit = session.beginTransaction();
+
+            System.out.print("Input book id you want to edit ");
+            Scanner in = new Scanner(System.in);
+            int id_book = in.nextInt();
+            Books book = session.get(Books.class, id_book);
+            System.out.print("Input book name you want to edit ");
+            Scanner in_name = new Scanner(System.in);
+            String new_name_book = in_name.nextLine();
+            book.setName(new_name_book);
+
+            System.out.print("Input author id you want to edit ");
+            Scanner in_author_id = new Scanner(System.in);
+            int new_author_id = in_name.nextInt();
+            Author a = new Author();
+            a.setId(new_author_id);
+            book.setAuthor(a);
+            session.update(book);
+            session.flush();
+            session.close();
+        }
 
     }
 
