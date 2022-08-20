@@ -1,6 +1,6 @@
 package utils;
-//import entities.Author;
-//import entities.Book;
+import entities.Author;
+import entities.Books;
 import entities.Role;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -11,14 +11,14 @@ public class HibernateSessionFactoryUtil {
 
     private HibernateSessionFactoryUtil() {
     }
-
+    // налаштування сесій Hibernate
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
             try {
                 Configuration configuration = new Configuration().configure();
                 configuration.addAnnotatedClass(Role.class);
-                //configuration.addAnnotatedClass(Author.class);
-                //configuration.addAnnotatedClass(Book.class);
+                configuration.addAnnotatedClass(Author.class);
+                configuration.addAnnotatedClass(Books.class);
                 StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder()
                         .applySettings(configuration.getProperties());
                 sessionFactory = configuration.buildSessionFactory(builder.build());

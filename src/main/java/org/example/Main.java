@@ -1,5 +1,7 @@
 package org.example;
 
+import entities.Author;
+import entities.Books;
 import entities.Role;
 
 import java.util.List;
@@ -12,82 +14,52 @@ import utils.HibernateSessionFactoryUtil;
 
 public class Main {
     public static void main(String[] args) throws Exception {
+//створення і відкриття нової сесії
         Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
-        //Role role = new Role();
-
         Query query = session.createQuery("From Role");
-
-        List<Role> roles = query.list();
-        System.out.println("All roles: ");
-        for (Role r : roles) {
-            System.out.println(r.getId() +" "+ r.getName());
-        }
-        System.out.println("Add new role => press 1 ");
-        System.out.println("Delete role => press 2 ");
-        System.out.println("Edit role => press 3 ");
-
-        Scanner in = new Scanner(System.in);
-        int num = in.nextInt();
-        switch (num) {
-            case 1:
-                add_role();
-                break;
-            case 2:
-                delete_role();
-                break;
-            case 3:
-                edit_role();
-                break;
-            default:
-                System.out.println("Press correct number");
-        }
-
-        session.close();
-
-    }
-    public static void add_role(){
-        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
-        Role role = new Role();
-        System.out.print("Input new role ");
-        Scanner in = new Scanner(System.in);
-        String new_role = in.nextLine();
-        role.setName(new_role);
+        //виділення пам'яті для створення об'єкту
+        Role role=new Role();
+        //присвоєння значення
+        role.setName("Admin");
+        // збереження значення
         session.save(role);
+        //вивід даних бази даних
+        System.out.println("Role id: "+ role.getId());
+
+//Створення об'єкту  Query
+        Query query1 = session.createQuery("FROM Role");
+        //вивід даних бази даних
+        List<Role> roles = query.list();
+        for (Role r : roles) {
+            System.out.println(r.getName());
+        }
         session.close();
 
-    }
 
-    public static void delete_role(){
-        Transaction transaction = null;
-        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
 
-            System.out.print("Input role id you want to delete ");
-            Scanner in = new Scanner(System.in);
-            int id_role = in.nextInt();
-            Role role = session.get(Role.class, id_role);
-            session.delete(role);
-            session.flush();
-            session.close();
+        Session session1 = HibernateSessionFactoryUtil.getSessionFactory().openSession();
+        Query query3 = session1.createQuery("FROM Books");
+        //виділення пам'яті для створення об'єкту
+        Books book=new Books();
+        //присвоєння значення для поля імені
+        book.setName("Бедрик");
+
+        Author a = new Author();
+        //присвоєння значення для поля, що забезпечує зв'язок між таблицями бази даних
+        a.setId(1);
+        book.setAuthor(a);
+        //збереження значень
+        session1.save(book);
+
+        Query query2 = session1.createQuery("FROM Books");
+        List<Books> books = query.list();
+        //вивід значень таблиць з баз даних
+        for (Books b : books) {
+            System.out.println(b.getAuthor().getFullName()+ " " + b.getName());
         }
-    }
-    public static void edit_role(){
-        Transaction transaction_edit = null;
-        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
-            transaction_edit = session.beginTransaction();
+        //закриття сесії
+        session1.close();
 
-            System.out.print("Input role id you want to edit ");
-            Scanner in = new Scanner(System.in);
-            int id_role = in.nextInt();
-            Role role = session.get(Role.class, id_role);
-            System.out.print("Input role id you want to edit ");
-            Scanner in_name = new Scanner(System.in);
-            String new_name_role = in_name.nextLine();
-            role.setName(new_name_role);
-            session.update(role);
-            System.out.print(role);
-            session.flush();
-            session.close();
-        }
     }
+
 }

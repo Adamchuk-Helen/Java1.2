@@ -15,6 +15,7 @@
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
+    //підключення бібліотек в проект
     <build>
         <finalName>step</finalName>
         <plugins>
